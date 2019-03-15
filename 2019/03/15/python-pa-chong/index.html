@@ -521,7 +521,7 @@ sortS    # 展示出成绩
 <li><p>在模拟登陆网站时，要注意表单中需要提交的值，有些值时变化的，所以每次登陆时，我们需要先获取到这些变值，然后再一次发送登陆请求。以在广州大学统一身份认证平台登陆为例。</p>
 </li>
 </ul>
-<p><img src="../../themes/hexo-theme-matery/source/medias/images/GZHU_login.png" width="300" height="200" margin="auto auto"></p>
+<p><img src="/medias/images/GZHU_login.png" width="300" height="200"></p>
 <p>如上图，lt , execution 都是不固定的。通过发送get请求获取登录界面中lt, execution的值同时也会记录此时的cookies值。</p>
 <pre><code>html = s.get(login_url, headers = headers)
 soup = BeautifulSoup(html.content, &#39;lxml&#39;)
