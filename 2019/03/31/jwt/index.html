@@ -4,9 +4,9 @@
 
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-    <meta name="keywords" content="python爬虫--爬取GZHU个人成绩和课表, JessChen">
-    <meta name="description" content="爬取信息的过程中可能要用到的辅助工具https://base64.supfree.net/ ：可以查看BASE64的加密解密\http://www.bejson.com/ ：在线JSON校验格式化工具
-直接上代码import request">
+    <meta name="keywords" content="JWT 在 golang 中的使用, JessChen">
+    <meta name="description" content="JWT (JSON Web Tokens)JWT 可以说是一种无状态的身份认证机制；服务器不会维护身份验证的状态，作用与session，cookie 类似。
+JWT 的结构header(头部)，payload(载荷)，signature(签">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -14,7 +14,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>python爬虫--爬取GZHU个人成绩和课表 | JessChen</title>
+    <title>JWT 在 golang 中的使用 | JessChen</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -258,13 +258,13 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
     <div class="container">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        python爬虫--爬取GZHU个人成绩和课表
+                        JWT 在 golang 中的使用
                     </div>
                 </div>
             </div>
@@ -375,8 +375,12 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/python爬虫/" target="_blank">
-                                <span class="chip bg-color">python爬虫</span>
+                            <a href="/tags/Token/" target="_blank">
+                                <span class="chip bg-color">Token</span>
+                            </a>
+                        
+                            <a href="/tags/golang/" target="_blank">
+                                <span class="chip bg-color">golang</span>
                             </a>
                         
                     </div>
@@ -399,7 +403,7 @@
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-03-15
+                    2019-03-31
                 </div>
 
                 
@@ -415,118 +419,65 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h3 id="爬取信息的过程中可能要用到的辅助工具"><a href="#爬取信息的过程中可能要用到的辅助工具" class="headerlink" title="爬取信息的过程中可能要用到的辅助工具"></a>爬取信息的过程中可能要用到的辅助工具</h3><p><a href="https://base64.supfree.net/" target="_blank" rel="noopener">https://base64.supfree.net/</a> ：可以查看BASE64的加密解密\<br><a href="http://www.bejson.com/" target="_blank" rel="noopener">http://www.bejson.com/</a> ：在线JSON校验格式化工具</p>
-<h3 id="直接上代码"><a href="#直接上代码" class="headerlink" title="直接上代码"></a>直接上代码</h3><pre><code>import requests  # 导入requests
-from bs4 import BeautifulSoup  # 导入bs4中的BeautifulSoup
-import json # json.loads(string)可以将字符串专为字典
-import pandas # 整理数据，是数据展示的直观有条理
-
-# 第一步：模拟登陆
-
-s = requests.Session()
-&#39;&#39;&#39;Session会话对象可以跨请求保持某些参数，即在你使用该对象登陆某个网站后，
-   如果你还访问该网站的其他网页都会默认使用该对象之前使用的cookie等参数
-&#39;&#39;&#39;
-username = input(&quot;请输入学号：&quot;)
-password = input(&quot;请输入密码：&quot;)
-
-login_url = &#39;https://cas.gzhu.edu.cn/cas_server/login&#39; # 登陆界面中登陆请求的地址
-headers = {
-     &#39;User-Agent&#39;: &#39;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36&#39;
-}
-html = s.get(login_url, headers = headers)
-soup = BeautifulSoup(html.content, &#39;lxml&#39;)
-lt = soup.select(&#39;input[name=&quot;lt&quot;]&#39;)[0].get(&#39;value&#39;)
-execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39;value&#39;)
-
-data = {
-  &#39;username&#39;: username,
-  &#39;password&#39;: password,
-   &#39;captcha&#39;:&#39;&#39; , 
-  &#39;warn&#39;: &#39;true&#39;,
-  &#39;lt&#39;: lt,
-  &#39;execution&#39;: execution,
-  &#39;_eventId&#39;: &#39;submit&#39;,
-  &#39;submit&#39;: &#39;登录&#39;
-}
-
-r = s.post(login_url, data=data,headers=headers,allow_redirects=False)
-resp = s.get(&#39;http://my.gzhu.edu.cn/&#39;, headers=headers)
-resp.encoding = &#39;utf-8&#39;
-
-# 第二步：进入新教育系统
-
-url1 = &#39;http://jwxt.gzhu.edu.cn/jwglxt/lyiotlogin&#39;
-result = s.get(url1)
-
-score_url = &quot;http://jwxt.gzhu.edu.cn/jwglxt/cjcx/cjcx_cxDgXscj.html?doType=query&amp;gnmkdm&quot;
-sform_data = {
-    &#39;xnm&#39;:&#39;2018&#39;,
-    &#39;xqm&#39;:&#39;3&#39;,
-    &#39;_search&#39;: &#39;false&#39;,
-    &#39;queryModel.showCount&#39;:&#39;15&#39;,
-    &#39;queryModel.currentPage&#39;:&#39;1&#39;,
-    &#39;queryModel.sortName&#39;: &#39;&#39;,
-    &#39;queryModel.sortOrder&#39;:&#39;asc&#39;
-
-}
-score = s.post(score_url,headers=headers)
-soup = BeautifulSoup(score.content,&#39;lxml&#39;)
-# print(soup.text)
-# score = s.post(score_url,sform_data)
-# score = BeautifulSoup(score.content,&#39;lxml&#39;)
-
-score = json.loads(score.text)
-score = score[&quot;items&quot;]
-cjList = [] # 成绩列表
-for item in score:
-    temp = {}
-    temp[&quot;xuenian&quot;] = item[&quot;xnmmc&quot;]
-    temp[&quot;xueqi&quot;] = item[&quot;xqmmc&quot;]
-    temp[&quot;courseName&quot;] = item[&quot;kcmc&quot;]
-    temp[&quot;score&quot;] = item[&quot;cj&quot;]
-    temp[&quot;jidian&quot;] = item[&quot;jd&quot;]
-    temp[&quot;teacher&quot;] = item[&quot;jsxm&quot;]
-    cjList.append(temp)
-sortS = pandas.DataFrame(cjList)
-
-# table_url 是学生课表查询界面中点击“查询”后发送请求的地址 
-table_url = &#39;http://jwxt.gzhu.edu.cn/jwglxt/kbcx/xskbcx_cxXsKb.html?&#39;
-tform_data = {
-    &#39;xnm&#39; :&#39;2018&#39;,
-    &#39;xqm&#39; :&#39;12&#39;
-}
-result = s.post(table_url,tform_data)
-result = BeautifulSoup(result.content,&#39;lxml&#39;)
-result = json.loads(result.text)
-result = result[&quot;kbList&quot;]
-kbList = [] # 课表列表
-for item in result:
-    temp = {}
-    temp[&quot;courseName&quot;] = item[&quot;kcmc&quot;]
-    temp[&quot;time&quot;] = &quot;(&quot; + item[&quot;jc&quot;] + &quot;)&quot; + item[&quot;zcd&quot;]
-    temp[&quot;address&quot;] = item[&quot;xqmc&quot;] + &quot; &quot; + item[&quot;cdmc&quot;]
-    temp[&quot;teacherName&quot;] = item[&quot;xm&quot;]
-    temp[&quot;week&quot;] = item[&quot;xqjmc&quot;]
-    temp[&quot;team&quot;] = item[&quot;jxbmc&quot;]
-    kbList.append(temp)
-df = pandas.DataFrame(kbList) # 通过pandas对数据进行整理，从而是其展示更有条理清晰
-df       # 展示出课表
-sortS    # 展示出成绩
-
-</code></pre><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><hr>
+                <h3 id="JWT-JSON-Web-Tokens"><a href="#JWT-JSON-Web-Tokens" class="headerlink" title="JWT (JSON Web Tokens)"></a>JWT (JSON Web Tokens)</h3><p><strong>JWT</strong> 可以说是一种无状态的身份认证机制；服务器不会维护身份验证的状态，作用与session，cookie 类似。</p>
+<h4 id="JWT-的结构"><a href="#JWT-的结构" class="headerlink" title="JWT 的结构"></a>JWT 的结构</h4><p><strong>header(头部)，payload(载荷)，signature(签名)</strong> ，<br>并且三者是通过 <strong>“.”</strong> 拼接的。例如：</p>
+<pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE1NTQwMDA0NDQsImlzcyI6IiJ9.m2EwMPwo3Jg9mdJaDC_5LETYsofmsX6-mKqQXISZbRs
+</code></pre><h4 id="header"><a href="#header" class="headerlink" title="header"></a>header</h4><p>包含 <strong>alg</strong> ，<strong>typ</strong> 两个属性</p>
 <ul>
-<li><p>建立一个Session 会话对象，并且在之后的发送请求时都是通过该对象进行。Session 可以记录用户在当前网站的登陆状态。每次向服务器发送请求时，服务器都会检查cookies里相应的会话，从而判断用户的状态，如果会话到期或者无效，则会跳转到登陆界面、其他界面或者收到错误的响应信息。</p>
-</li>
-<li><p>在模拟登陆网站时，要注意表单中需要提交的值，有些值时变化的，所以每次登陆时，我们需要先获取到这些变值，然后再一次发送登陆请求。以在广州大学统一身份认证平台登陆为例。</p>
-</li>
+<li><strong>alg</strong> 表示签名的加密算法</li>
+<li><strong>typ</strong> 表示token类型，此处用 JWT 类型。\<br>例如<pre><code>{
+  &quot;alg&quot;: &quot;HS256&quot;,
+  &quot;typ&quot;: &quot;JWT&quot;
+}
+</code></pre><h4 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h4><strong>payload</strong> 用来存放需要传递的信息。其中，除了JWT 规范定义的七个标准字段外，还可以包含自定义的数据。<h5 id="官方给出的"><a href="#官方给出的" class="headerlink" title="官方给出的"></a>官方给出的</h5></li>
+<li>iss : 发行者</li>
+<li>sub : 主题</li>
+<li>exp : 到期时间</li>
+<li>aud : 接收者</li>
+<li>nbf : 生效时间</li>
+<li>iat : 签发时间</li>
+<li>jti : jwt 的编号（每个令牌的唯一标识符）<h4 id="signature"><a href="#signature" class="headerlink" title="signature"></a>signature</h4><strong>signature</strong> 是用于令牌验证的签名（可以说是对header,payload 再加上一个secret 的签名）。其由三部分组成 ， 如下：<pre><code>HMAC-SHA256 (
+  base64urlEncoding(header) + &quot;.&quot; 
+  base64urlEncoding(payload),
+  secret
+)
+</code></pre><h3 id="JWT-在-golang-中的使用"><a href="#JWT-在-golang-中的使用" class="headerlink" title="JWT 在 golang 中的使用"></a>JWT 在 golang 中的使用</h3><h4 id="package-jwt-的相关文档"><a href="#package-jwt-的相关文档" class="headerlink" title="package jwt 的相关文档"></a>package jwt 的相关文档</h4><a href="https://godoc.org/github.com/dgrijalva/jwt-go#example-New--Hmac" target="_blank" rel="noopener">https://godoc.org/github.com/dgrijalva/jwt-go#example-New–Hmac</a></li>
 </ul>
-<p><img src="/medias/images/GZHU_login.png" width="300" height="200"></p>
-<p>如上图，lt , execution 都是不固定的。通过发送get请求获取登录界面中lt, execution的值同时也会记录此时的cookies值。</p>
-<pre><code>html = s.get(login_url, headers = headers)
-soup = BeautifulSoup(html.content, &#39;lxml&#39;)
-lt = soup.select(&#39;input[name=&quot;lt&quot;]&#39;)[0].get(&#39;value&#39;)
-execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39;value&#39;)
+<h4 id="JWT-包的下载"><a href="#JWT-包的下载" class="headerlink" title="JWT 包的下载"></a>JWT 包的下载</h4><pre><code>go get github.com/dgrijalva/jwt-go
+</code></pre><h4 id="创建-Token"><a href="#创建-Token" class="headerlink" title="创建 Token"></a>创建 Token</h4><pre><code>type jwtCustomClaims struct {
+    jwt.StandardClaims
+}
+func CreateToken( issuer string) (tokenString string, err error) {
+    SecretKey := []byte(&quot;123456&quot;) // 设置密钥
+    claims := &amp;jwtCustomClaims{   // claims（即 payload） ：存储需要传递的重要信息
+        jwt.StandardClaims{
+            ExpiresAt: int64(time.Now().Add(time.Second * 50).Unix()), // 设置过期时间为 50 秒
+            Issuer:    issuer,                    // 设置令牌发行者，指明 Token 的用户
+        },
+
+    }
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) // 创建 Token 对象，第一个参数是签名的算法
+    tokenString, err = token.SignedString(SecretKey)
+    return
+}
+</code></pre><h4 id="解析-Token"><a href="#解析-Token" class="headerlink" title="解析 Token"></a>解析 Token</h4><pre><code>func ParseToken(tokenStr string) (iss string, err error) {
+
+    SecretKey := []byte(&quot;123456&quot;)
+    var token *jwt.Token
+    token, err = jwt.Parse(tokenStr, func(*jwt.Token) (interface{}, error) {
+        return SecretKey, nil
+    })
+
+    claims, _ := token.Claims.(jwt.MapClaims)
+    fmt.Println(claims)
+        if token.Valid { // 检查令牌是否有效
+            return claims[&quot;iss&quot;].(string), nil
+
+        } else {
+            return claims[&quot;iss&quot;].(string), errors.New(&quot;token无效&quot;)
+
+        }
+}
 </code></pre>
             </div>
             <hr>
@@ -674,7 +625,7 @@ execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39
                     </span>
                     <a href="http://yoursite.com" class="b-link-green">JessChen</a>
                     <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
-                    <a href="/2019/03/15/python-pa-chong/" class="b-link-green">python爬虫--爬取GZHU个人成绩和课表</a>
+                    <a href="/2019/03/31/jwt/" class="b-link-green">JWT 在 golang 中的使用</a>
                 </p>
             </div>
         </div>
@@ -696,7 +647,7 @@ execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39
         repo: '',
         owner: '',
         admin: null,
-        id: '2019-03-15T00-00-00',
+        id: '2019-03-31T13-18-00',
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
 
@@ -719,7 +670,8 @@ execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="fa fa-dot-circle-o"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2019/03/31/jwt/">
                     <div class="card-image">
@@ -734,9 +686,9 @@ execution = soup.select(&#39;input[name=&quot;execution&quot;]&#39;)[0].get(&#39
                     <div class="summary">JWT (JSON Web Tokens)JWT 可以说是一种无状态的身份认证机制；服务器不会维护身份验证的状态，作用与session，cookie 类似。
 JWT 的结构header(头部)，payload(载荷)，signature(签</div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-03-31
-                        </span>
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-03-31
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fa fa-bookmark fa-fw icon-category"></i>
@@ -749,6 +701,7 @@ JWT 的结构header(头部)，payload(载荷)，signature(签</div>
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -768,7 +721,7 @@ JWT 的结构header(头部)，payload(载荷)，signature(签</div>
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="fa fa-dot-circle-o"></i>
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
             </div>
             <div class="card">
                 <a href="/2019/03/15/python-pa-chong/">
@@ -799,7 +752,6 @@ JWT 的结构header(头部)，payload(载荷)，signature(签</div>
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     

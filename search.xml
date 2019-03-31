@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>JWT 在 golang 中的使用</title>
+      <link href="/2019/03/31/jwt/"/>
+      <url>/2019/03/31/jwt/</url>
+      
+        <content type="html"><![CDATA[<h3 id="JWT-JSON-Web-Tokens"><a href="#JWT-JSON-Web-Tokens" class="headerlink" title="JWT (JSON Web Tokens)"></a>JWT (JSON Web Tokens)</h3><p><strong>JWT</strong> 可以说是一种无状态的身份认证机制；服务器不会维护身份验证的状态，作用与session，cookie 类似。</p><h4 id="JWT-的结构"><a href="#JWT-的结构" class="headerlink" title="JWT 的结构"></a>JWT 的结构</h4><p><strong>header(头部)，payload(载荷)，signature(签名)</strong> ，<br>并且三者是通过 <strong>“.”</strong> 拼接的。例如：</p><pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE1NTQwMDA0NDQsImlzcyI6IiJ9.m2EwMPwo3Jg9mdJaDC_5LETYsofmsX6-mKqQXISZbRs</code></pre><h4 id="header"><a href="#header" class="headerlink" title="header"></a>header</h4><p>包含 <strong>alg</strong> ，<strong>typ</strong> 两个属性</p><ul><li><strong>alg</strong> 表示签名的加密算法</li><li><strong>typ</strong> 表示token类型，此处用 JWT 类型。\<br>例如<pre><code>{  &quot;alg&quot;: &quot;HS256&quot;,  &quot;typ&quot;: &quot;JWT&quot;}</code></pre><h4 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h4><strong>payload</strong> 用来存放需要传递的信息。其中，除了JWT 规范定义的七个标准字段外，还可以包含自定义的数据。<h5 id="官方给出的"><a href="#官方给出的" class="headerlink" title="官方给出的"></a>官方给出的</h5></li><li>iss : 发行者</li><li>sub : 主题</li><li>exp : 到期时间</li><li>aud : 接收者</li><li>nbf : 生效时间</li><li>iat : 签发时间</li><li>jti : jwt 的编号（每个令牌的唯一标识符）<h4 id="signature"><a href="#signature" class="headerlink" title="signature"></a>signature</h4><strong>signature</strong> 是用于令牌验证的签名（可以说是对header,payload 再加上一个secret 的签名）。其由三部分组成 ， 如下：<pre><code>HMAC-SHA256 (  base64urlEncoding(header) + &quot;.&quot;   base64urlEncoding(payload),  secret)</code></pre><h3 id="JWT-在-golang-中的使用"><a href="#JWT-在-golang-中的使用" class="headerlink" title="JWT 在 golang 中的使用"></a>JWT 在 golang 中的使用</h3><h4 id="package-jwt-的相关文档"><a href="#package-jwt-的相关文档" class="headerlink" title="package jwt 的相关文档"></a>package jwt 的相关文档</h4><a href="https://godoc.org/github.com/dgrijalva/jwt-go#example-New--Hmac" target="_blank" rel="noopener">https://godoc.org/github.com/dgrijalva/jwt-go#example-New–Hmac</a></li></ul><h4 id="JWT-包的下载"><a href="#JWT-包的下载" class="headerlink" title="JWT 包的下载"></a>JWT 包的下载</h4><pre><code>go get github.com/dgrijalva/jwt-go</code></pre><h4 id="创建-Token"><a href="#创建-Token" class="headerlink" title="创建 Token"></a>创建 Token</h4><pre><code>type jwtCustomClaims struct {    jwt.StandardClaims}func CreateToken( issuer string) (tokenString string, err error) {    SecretKey := []byte(&quot;123456&quot;) // 设置密钥    claims := &amp;jwtCustomClaims{   // claims（即 payload） ：存储需要传递的重要信息        jwt.StandardClaims{            ExpiresAt: int64(time.Now().Add(time.Second * 50).Unix()), // 设置过期时间为 50 秒            Issuer:    issuer,                    // 设置令牌发行者，指明 Token 的用户        },    }    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) // 创建 Token 对象，第一个参数是签名的算法    tokenString, err = token.SignedString(SecretKey)    return}</code></pre><h4 id="解析-Token"><a href="#解析-Token" class="headerlink" title="解析 Token"></a>解析 Token</h4><pre><code>func ParseToken(tokenStr string) (iss string, err error) {    SecretKey := []byte(&quot;123456&quot;)    var token *jwt.Token    token, err = jwt.Parse(tokenStr, func(*jwt.Token) (interface{}, error) {        return SecretKey, nil    })    claims, _ := token.Claims.(jwt.MapClaims)    fmt.Println(claims)        if token.Valid { // 检查令牌是否有效            return claims[&quot;iss&quot;].(string), nil        } else {            return claims[&quot;iss&quot;].(string), errors.New(&quot;token无效&quot;)        }}</code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> Markdown </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Token </tag>
+            
+            <tag> golang </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>python爬虫--爬取GZHU个人成绩和课表</title>
       <link href="/2019/03/15/python-pa-chong/"/>
       <url>/2019/03/15/python-pa-chong/</url>
